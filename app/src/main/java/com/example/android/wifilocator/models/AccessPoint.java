@@ -1,6 +1,4 @@
-package com.example.android.wifilocator;
-
-import com.google.android.gms.maps.model.LatLng;
+package com.example.android.wifilocator.models;
 
 /**
  * Created by lenovo on 1/25/2017.
@@ -9,7 +7,8 @@ import com.google.android.gms.maps.model.LatLng;
 public class AccessPoint {
 
     private String level;
-    private LatLng location;
+    private double lat;
+    private double lng;
 
     //Constructors
     //Constructor 1
@@ -24,10 +23,10 @@ public class AccessPoint {
     }
 
     //Constructor 3
-    public AccessPoint(String level, LatLng location){
-
+    public AccessPoint(String level, double lat, double lng){
         this.level = level;
-        this.location = location;
+        this.lat = lat;
+        this.lng = lng;
     }
 
     //Getters
@@ -35,25 +34,35 @@ public class AccessPoint {
         return level;
     }
 
-    public LatLng getLocation() {
-        return location;
+    public double getLat() {
+        return lat;
     }
 
-    //Setters
+    public double getLng() {
+        return lng;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public void setLng(double lng) {
+        this.lng = lng;
+    }
+
+//Setters
 
     public void setLevel(String level) {
         this.level = level;
     }
 
-    public void setLocation(LatLng location) {
-        this.location = location;
-    }
 
     @Override
     public String toString() {
         return "AccessPoint{" +
                 "level='" + level + '\'' +
-                ", location=" + location +
+                ", lat=" + lat +
+                ", lng=" + lng +
                 '}';
     }
 }

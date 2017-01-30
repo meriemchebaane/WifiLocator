@@ -1,4 +1,6 @@
-package com.example.android.wifilocator;
+package com.example.android.wifilocator.models;
+
+import com.example.android.wifilocator.models.BSSID;
 
 import java.util.List;
 

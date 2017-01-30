@@ -48,7 +48,7 @@ public class GoogleLocationAsyncTask extends AsyncTask<Void, Void, Void> impleme
     private Location mLastLocation;
 
     //Google Map
-    LatLng latLng;
+    public static LatLng latLng;
     Marker currLocationMarker;
 
     //Geocoder for addresses
@@ -84,6 +84,14 @@ public class GoogleLocationAsyncTask extends AsyncTask<Void, Void, Void> impleme
             //mGoogleMap.clear();
 
             latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
+            //        zoom to current position:
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(latLng).zoom(14).build();
+            mGoogleMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition));
+
+
 //            MarkerOptions markerOptions = new MarkerOptions();
 //            markerOptions.position(latLng);
 //            markerOptions.title("Current Position");
@@ -128,7 +136,7 @@ public class GoogleLocationAsyncTask extends AsyncTask<Void, Void, Void> impleme
 //        currLocationMarker = mGoogleMap.addMarker(markerOptions);
 
 
-        //zoom to current position:
+//        zoom to current position:
 //        CameraPosition cameraPosition = new CameraPosition.Builder()
 //                .target(latLng).zoom(14).build();
 //
@@ -140,6 +148,14 @@ public class GoogleLocationAsyncTask extends AsyncTask<Void, Void, Void> impleme
 //        Toast.makeText(activity, "latitude: " + location.getLatitude() + " longitude: " + location.getLongitude(),Toast.LENGTH_SHORT);
 //        Log.d("Location", String.valueOf(location.getLatitude()));
 
+
+        //AsyncTask to scan and detect all wifis available and put them in a ListView in the Main UI thread
+        // If the result of scan is null, display a textView instead of the listView and set the text to "No Wifis Available"
+        // as its emptyState
+
+        WifisScanAsyncTask scanWifisTask = new WifisScanAsyncTask(activity);
+        scanWifisTask.execute();
+
         //Location updated
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         //getting name of the place of this location
@@ -149,8 +165,18 @@ public class GoogleLocationAsyncTask extends AsyncTask<Void, Void, Void> impleme
             if (addresses.size() > 0)
             {
                 address = addresses.get(0).getAddressLine(0);
+                //Delete street number from the address
+                for(int i=0; i<=9; i++) {
+                    if (address.contains(String.valueOf(i))) {
+                        address = address.replace(String.valueOf(i), "");
+                    }
+                }
+                if(address.contains("-")){
+                    address = address.replace("-", "");
+                }
+
                 city = addresses.get(0).getAddressLine(1);
-                country = addresses.get(0).getAddressLine(2);
+                String country = addresses.get(0).getAddressLine(2);
                 region = address + ", " + city + ", " + country;
 
 //                Toast.makeText(activity, "Address : " + address, Toast.LENGTH_SHORT).show();

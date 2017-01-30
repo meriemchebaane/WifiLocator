@@ -23,6 +23,10 @@ import android.net.wifi.ScanResult;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.example.android.wifilocator.models.AccessPoint;
+import com.example.android.wifilocator.models.BSSID;
+import com.example.android.wifilocator.models.Region;
+import com.example.android.wifilocator.models.SSID;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.*;
@@ -32,8 +36,12 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import static com.example.android.wifilocator.R.id.map;
@@ -61,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static DatabaseReference rootReference;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private ChildEventListener mChildEventListener;
     //Authentication
     public static final String ANONYMOUS = "anonymous";
     public static final int RC_SIGN_IN = 1;
@@ -119,25 +128,107 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mWifisDatabaseReference = mFirebaseDatabase.getReference();
 
 
+
         //FloatingActionButton sends list of wifis
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Send wifis with corresponding SSID on Click
-                List<SSID> ssids = new ArrayList<SSID>();
-                for(Wifi wifi : listwifi) {
-                    ssids.add(createSSID(wifi));
-                }
-                for(SSID ssid : ssids){
 
-                    //Exclude the wifis with security restriction
-                    if(!ssid.getSecurity().contains("WPA") && !ssid.getSecurity().contains("WPA2")) {
-                        //if you only want a specific wifi set its ssid
-//                      if(Pattern.compile(Pattern.quote("Mediterranee"), Pattern.CASE_INSENSITIVE).matcher(wifi.getSSID()).find())
-                        mWifisDatabaseReference.child(ssid.getSSID() + ": " + ssid.getRegion()).setValue(ssid);
+
+
+
+                //Send wifis with corresponding SSID on Click
+                final List<SSID> ssids = new ArrayList<SSID>();
+                final Region[] region = new Region[1];
+                mWifisDatabaseReference.child(GoogleLocationAsyncTask.region).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        region[0] = dataSnapshot.getValue(Region.class);
                     }
-                }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if(region[0] == null){
+                            for(Wifi wifi : listwifi) {
+                                ssids.add(createSSID(wifi));
+                            }
+                            region[0] = new Region(GoogleLocationAsyncTask.region, ssids);
+                            mWifisDatabaseReference.child(region[0].getRegion()).setValue(region[0]);
+                        }else{
+                            for(Wifi wifi : listwifi){
+                                String ssidName = wifi.getSSID();
+                                String bssidName = wifi.getBSSID();
+                                boolean foundSSID = false;
+                                boolean foundBSSID = false;
+                                BSSID bssid1 = null;
+                                SSID ssid1 = null;
+                                for(SSID ssid : region[0].getListSSID()){
+                                    if(ssid.getSSID().equals(ssidName)){
+                                        foundSSID = true;
+                                        ssid1 = ssid;
+                                        for(BSSID bssid : ssid.getBssidList()){
+                                            if(bssid.getBSSID().equals(bssidName)){
+                                                bssid1 = bssid;
+                                                foundBSSID = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!foundBSSID){
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(!foundBSSID && foundSSID){
+                                    ArrayList<AccessPoint> accessPoints = new ArrayList<AccessPoint>();
+                                    accessPoints.add(new AccessPoint(wifi.getLevel(), GoogleLocationAsyncTask.latLng.latitude, GoogleLocationAsyncTask.latLng.longitude));
+                                    ssid1.getBssidList().add(new BSSID(wifi.getBSSID(), accessPoints));
+                                }else if(!foundBSSID && !foundSSID) {
+                                    ArrayList<AccessPoint> accessPoints = new ArrayList<AccessPoint>();
+                                    accessPoints.add(new AccessPoint(wifi.getLevel(), GoogleLocationAsyncTask.latLng.latitude, GoogleLocationAsyncTask.latLng.longitude));
+                                    BSSID bssid = new BSSID(wifi.getBSSID(), accessPoints);
+                                    ArrayList<BSSID> bssids = new ArrayList<BSSID>();
+                                    bssids.add(bssid);
+                                    SSID ssid = new SSID(wifi.getSSID());
+                                    ssid.setBssidList(bssids);
+                                    region[0].getListSSID().add(ssid);
+                                }else if (foundBSSID){
+                                    bssid1.getAccessPoints().add(new AccessPoint(wifi.getLevel(), GoogleLocationAsyncTask.latLng.latitude, GoogleLocationAsyncTask.latLng.longitude));
+                                } else if(!foundSSID){
+                                    region[0].getListSSID().add(createSSID(wifi));
+                                }
+                            }
+                            mWifisDatabaseReference.child(region[0].getRegion()).setValue(region[0]);
+                        }
+                    }
+                });
+                thread.start();
+//                for(SSID ssid : ssids){
+//
+//                    //Exclude the wifis with security restriction
+//                    if(!ssid.getSecurity().contains("WPA") && !ssid.getSecurity().contains("WPA2")) {
+//                        //if you only want a specific wifi set its ssid
+////                      if(Pattern.compile(Pattern.quote("Mediterranee"), Pattern.CASE_INSENSITIVE).matcher(wifi.getSSID()).find())
+////                        mWifisDatabaseReference.child(ssid.getSSID() + ": " + ssid.getRegion()).setValue(ssid);
+//
+//
+//                        mWifisDatabaseReference.child(region[0].getRegion()).setValue(region[0]);
+//
+//
+//                    }
+//                }
             }
         });
 
@@ -166,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Method to create new SSID instance used in Firebase
     public SSID createSSID(Wifi wifi){
 
-        AccessPoint accessPoint = new AccessPoint(wifi.getLevel() ,wifi.getLocation());
+        AccessPoint accessPoint = new AccessPoint(wifi.getLevel() ,GoogleLocationAsyncTask.latLng.latitude, GoogleLocationAsyncTask.latLng.longitude);
         List<AccessPoint> accessPoints = new ArrayList<AccessPoint>();
         accessPoints.add(accessPoint);
         BSSID bssid = new BSSID(wifi.getBSSID(), accessPoints);
@@ -225,20 +316,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            //Go to Settings Activity
-            Intent settingsIntent = new Intent(this, SettingsActivity.class);
-            startActivity(settingsIntent);
-            return true;
-        }
-
-        if (id == R.id.rescan) {
-            //Rescan wifis
-            WifisScanAsyncTask task = new WifisScanAsyncTask(this);
-            task.execute();
-            return true;
-        }
-
         if (id == R.id.sign_out) {
             //Signed Out
             AuthUI.getInstance().signOut(this);
@@ -268,6 +345,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onPause(){
         super.onPause();
         mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+        if (mChildEventListener != null) {
+            mWifisDatabaseReference.removeEventListener(mChildEventListener);
+            mChildEventListener = null;
+        }
     }
 
 }

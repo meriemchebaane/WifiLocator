@@ -1,4 +1,4 @@
-package com.example.android.wifilocator;
+package com.example.android.wifilocator.models;
 
 import java.util.List;
 

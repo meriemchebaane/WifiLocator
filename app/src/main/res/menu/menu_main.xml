@@ -3,12 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="1" app:showAsAction="never" />
-
-    <item android:id="@+id/rescan" android:title="@string/rescan"
-        android:orderInCategory="2" app:showAsAction="never" />
-
     <item android:id="@+id/sign_out" android:title="@string/sign_out"
-        android:orderInCategory="3" app:showAsAction="never" />
+        android:orderInCategory="1" app:showAsAction="never" />
 </menu>
