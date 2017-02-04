@@ -4,14 +4,13 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
 
-public class Wifi implements Serializable{
+public class Wifi {
     private String user;
     private String SSID;
     private String BSSID;
     private String security;
     private String level;
     private LatLng location;
-
 
     //Constructors
     //Constructor 1
