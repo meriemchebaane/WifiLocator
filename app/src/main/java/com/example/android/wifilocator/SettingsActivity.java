@@ -12,7 +12,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.settings_activity);
     }
 
-    public static class WifiLocatorPreferenceFragment extends PreferenceFragment {
-
-    }
+//    public static class WifiLocatorPreferenceFragment extends PreferenceFragment {
+//
+//    }
 }

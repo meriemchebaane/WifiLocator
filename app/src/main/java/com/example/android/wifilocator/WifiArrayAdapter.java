@@ -39,18 +39,18 @@ public class WifiArrayAdapter extends ArrayAdapter<Wifi> {
         ImageView imageView = (ImageView) itemView.findViewById(R.id.item_imageView);
 
         if (wifi.getSecurity().contains("WPA") || wifi.getSecurity().contains("WPA2")) {
-            if (Integer.parseInt(wifi.getLevel()) < -90) {
+            if ((int) (long) (wifi.getLevel()) < -90) {
                 imageView.setImageResource(R.drawable.secured_low_signal);
-            } else if (Integer.parseInt(wifi.getLevel()) > -50) {
+            } else if ((int) (long) (wifi.getLevel()) > -50) {
                 imageView.setImageResource(R.drawable.secured_high_signal);
             } else {
                 imageView.setImageResource(R.drawable.secured_medium_signal);
             }
         } else {
-            Log.d("Level " + listwifi.size(), String.valueOf(Integer.parseInt(wifi.getLevel())));
-            if (Integer.parseInt(wifi.getLevel()) < -90) {
+            Log.d("Level " + listwifi.size(), String.valueOf((int) (long) (wifi.getLevel())));
+            if ((int) (long) (wifi.getLevel()) < -90) {
                 imageView.setImageResource(R.drawable.free_low_signal);
-            } else if (Integer.parseInt(wifi.getLevel()) > -50) {
+            } else if ((int) (long) (wifi.getLevel()) > -50) {
                 imageView.setImageResource(R.drawable.free_high_signal);
             } else {
                 imageView.setImageResource(R.drawable.free_medium_signal);

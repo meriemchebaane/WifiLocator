@@ -1,5 +1,9 @@
 package com.example.android.wifilocator;
 
+/**
+ * Created by Sherif Meimari on 1/25/2017.
+ */
+
 //AsyncTask that creates a GoogleApiClient to
 // 1- get current location of the user and display the updated location on the GoogleMap
 //2- get address of the current location to define the region
@@ -147,14 +151,6 @@ public class GoogleLocationAsyncTask extends AsyncTask<Void, Void, Void> impleme
 //        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
 //        Toast.makeText(activity, "latitude: " + location.getLatitude() + " longitude: " + location.getLongitude(),Toast.LENGTH_SHORT);
 //        Log.d("Location", String.valueOf(location.getLatitude()));
-
-
-        //AsyncTask to scan and detect all wifis available and put them in a ListView in the Main UI thread
-        // If the result of scan is null, display a textView instead of the listView and set the text to "No Wifis Available"
-        // as its emptyState
-
-        WifisScanAsyncTask scanWifisTask = new WifisScanAsyncTask(activity);
-        scanWifisTask.execute();
 
         //Location updated
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());

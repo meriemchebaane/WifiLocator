@@ -9,7 +9,7 @@ public class Wifi {
     private String SSID;
     private String BSSID;
     private String security;
-    private String level;
+    private long level;
     private LatLng location;
 
     //Constructors
@@ -19,14 +19,14 @@ public class Wifi {
     }
 
     //Constructor 2
-    public Wifi(String SSID, String security, String level) {
+    public Wifi(String SSID, String security, long level) {
         this.SSID = SSID;
         this.security = security;
         this.level = level;
     }
 
     //Constructor 3
-    public Wifi(String SSID, String security, String level, String BSSID) {
+    public Wifi(String SSID, String security, long level, String BSSID) {
         this.SSID = SSID;
         this.security = security;
         this.level = level;
@@ -43,7 +43,7 @@ public class Wifi {
         return security;
     }
 
-    public String getLevel() {
+    public long getLevel() {
         return level;
     }
 
@@ -70,7 +70,7 @@ public class Wifi {
         this.security = security;
     }
 
-    public void setLevel(String level) {
+    public void setLevel(long level) {
         this.level = level;
     }
 

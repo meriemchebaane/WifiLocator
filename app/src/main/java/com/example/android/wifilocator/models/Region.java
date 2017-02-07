@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by lenovo on 1/28/2017.
+ * Created by Sherif Meimari on 1/28/2017.
  */
 
 public class Region {

@@ -1,12 +1,12 @@
 package com.example.android.wifilocator.models;
 
 /**
- * Created by lenovo on 1/25/2017.
+ * Created by Sherif Meimari on 1/25/2017.
  */
 
 public class AccessPoint {
 
-    private String level;
+    private long level;
     private double lat;
     private double lng;
 
@@ -17,20 +17,20 @@ public class AccessPoint {
     }
 
     //Constructor 2
-    public AccessPoint(String level){
+    public AccessPoint(long level){
 
         this.level = level;
     }
 
     //Constructor 3
-    public AccessPoint(String level, double lat, double lng){
+    public AccessPoint(long level, double lat, double lng){
         this.level = level;
         this.lat = lat;
         this.lng = lng;
     }
 
     //Getters
-    public String getLevel() {
+    public long getLevel() {
         return level;
     }
 
@@ -52,7 +52,7 @@ public class AccessPoint {
 
 //Setters
 
-    public void setLevel(String level) {
+    public void setLevel(long level) {
         this.level = level;
     }
 

@@ -2,11 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <ExpandableListView
-        android:id="@+id/lvExp"
+        android:id="@+id/exp_list"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_width="match_parent"/>
+        android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
+        android:divider="@color/colorPrimaryDark"
+        android:dividerHeight="0.5dp">
+
+    </ExpandableListView>
 
 </LinearLayout>

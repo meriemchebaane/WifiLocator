@@ -1,5 +1,9 @@
 package com.example.android.wifilocator.models;
 
+/**
+ * Created by Sherif Meimari on 1/25/2017.
+ */
+
 import com.example.android.wifilocator.models.BSSID;
 
 import java.util.List;

@@ -1,5 +1,9 @@
 package com.example.android.wifilocator;
 
+/**
+ * Created by Sherif Meimari on 1/25/2017.
+ */
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;

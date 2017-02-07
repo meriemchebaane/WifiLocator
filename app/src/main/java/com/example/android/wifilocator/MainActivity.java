@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Float Action Button
     private FloatingActionButton mFloatingActionButton;
+    private FloatingActionButton mFloatingActionButton2;
 
     //Firebase
     public static FirebaseDatabase mFirebaseDatabase;
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(map);
         mapFragment.getMapAsync(this);
 
@@ -135,9 +137,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
 
-
-
-
                 //Send wifis with corresponding SSID on Click
                 final List<SSID> ssids = new ArrayList<SSID>();
                 final Region[] region = new Region[1];
@@ -145,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         region[0] = dataSnapshot.getValue(Region.class);
+                        Toast.makeText(MainActivity.this, "New Wifis have been added!", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -163,7 +163,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                         if(region[0] == null){
                             for(Wifi wifi : listwifi) {
-                                ssids.add(createSSID(wifi));
+                                //Add only public wifis with no security
+                                if(!wifi.getSecurity().contains("WPA") && !wifi.getSecurity().contains("WPA2"))
+                                    ssids.add(createSSID(wifi));
                             }
                             region[0] = new Region(GoogleLocationAsyncTask.region, ssids);
                             mWifisDatabaseReference.child(region[0].getRegion()).setValue(region[0]);
@@ -226,11 +228,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //
 //                        mWifisDatabaseReference.child(region[0].getRegion()).setValue(region[0]);
 //
-//
 //                    }
 //                }
             }
         });
+
+        //FloatingActionButton to show publicWifisActivity
+        mFloatingActionButton2 = (FloatingActionButton) findViewById(R.id.fab2);
+        mFloatingActionButton2.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+
+                Intent myIntent = new Intent(MainActivity.this,
+                        PublicWifisActivity.class);
+                startActivity(myIntent);
+            }
+        });
+
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -315,6 +330,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
+
+        if (id == R.id.rescan) {
+            //Rescan Wifis
+            //AsyncTask that creates a GoogleApiClient to get current location of the user and display
+            // the updated location on the GoogleMap
+            GoogleLocationAsyncTask currentLocationTask = new GoogleLocationAsyncTask(this);
+            currentLocationTask.execute();
+            return true;
+        }
 
         if (id == R.id.sign_out) {
             //Signed Out
