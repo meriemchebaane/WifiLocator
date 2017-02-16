@@ -9,7 +9,7 @@ public class Wifi {
     private String SSID;
     private String BSSID;
     private String security;
-    private long level;
+    private double level;
     private LatLng location;
 
     //Constructors
@@ -19,18 +19,18 @@ public class Wifi {
     }
 
     //Constructor 2
-    public Wifi(String SSID, String security, long level) {
+    public Wifi(String SSID, String security, double level) {
         this.SSID = SSID;
         this.security = security;
         this.level = level;
     }
 
     //Constructor 3
-    public Wifi(String SSID, String security, long level, String BSSID) {
+    public Wifi(String SSID, String security, double level, String BSSID) {
         this.SSID = SSID;
         this.security = security;
         this.level = level;
-        this.BSSID = BSSID;
+//        this.BSSID = BSSID;
     }
 
 
@@ -43,11 +43,11 @@ public class Wifi {
         return security;
     }
 
-    public long getLevel() {
+    public double getLevel() {
         return level;
     }
 
-    public String getBSSID(){ return BSSID; }
+//    public String getBSSID(){ return BSSID; }
 
     public LatLng getLocation() {
         return location;
@@ -62,15 +62,15 @@ public class Wifi {
         this.SSID = SSID;
     }
 
-    public void setBSSID(String BSSID) {
-        this.BSSID = BSSID;
-    }
+//    public void setBSSID(String BSSID) {
+//        this.BSSID = BSSID;
+//    }
 
     public void setSecurity(String security) {
         this.security = security;
     }
 
-    public void setLevel(long level) {
+    public void setLevel(double level) {
         this.level = level;
     }
 
@@ -83,7 +83,7 @@ public class Wifi {
         return "Wifi{" +
                 "user='" + user + '\'' +
                 ", SSID='" + SSID + '\'' +
-                ", BSSID='" + BSSID + '\'' +
+//                ", BSSID='" + BSSID + '\'' +
                 ", security='" + security + '\'' +
                 ", level='" + level + '\'' +
                 ", location=" + location +

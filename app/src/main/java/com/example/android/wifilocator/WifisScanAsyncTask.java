@@ -51,7 +51,7 @@ public class WifisScanAsyncTask extends AsyncTask<Void, Void, Void> {
                 for (Wifi wifi : listwifi) {
                     if ((wifi.getSecurity().equals(scanResult.capabilities)) && (wifi.getSSID().equals(scanResult.SSID))) {
                         exist = true;
-                        if ((int) (long) (wifi.getLevel()) < scanResult.level) {
+                        if ((int)(wifi.getLevel()) < scanResult.level) {
                             Oldwifi = wifi;
                             superieur = true;
                             break;
@@ -64,13 +64,11 @@ public class WifisScanAsyncTask extends AsyncTask<Void, Void, Void> {
                     Log.d("SSID " + listwifi.size(), scanResult.SSID);
                     Log.d("Capabilities " + listwifi.size(), scanResult.capabilities);
                     Log.d("Level " + listwifi.size(), String.valueOf(scanResult.level));
-                    Log.d("BSSID " + listwifi.size(), String.valueOf(scanResult.BSSID));
                 } else if (!exist) {
                     listwifi.add(new Wifi(scanResult.SSID, scanResult.capabilities, scanResult.level, scanResult.BSSID));
                     Log.d("SSID " + listwifi.size(), scanResult.SSID);
                     Log.d("Capabilities " + listwifi.size(), scanResult.capabilities);
                     Log.d("Level " + listwifi.size(), String.valueOf(scanResult.level));
-                    Log.d("BSSID " + listwifi.size(), String.valueOf(scanResult.BSSID));
                     //   Log.d("Capabilities " + listwifi.size(), scanResult.capabilities);
                     //     Log.d("Level " + listwifi.size(), String.valueOf(scanResult.level));
 

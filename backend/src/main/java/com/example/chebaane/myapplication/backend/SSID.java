@@ -1,9 +1,8 @@
-package com.example.android.wifilocator.models;
+package com.example.chebaane.myapplication.backend;
 
 /**
  * Created by Sherif Meimari on 1/25/2017.
  */
-import com.example.android.wifilocator.models.AccessPoint;
 
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class SSID {
     }
 
     //Constructor 5
-    public SSID(String ssid, String security,List<AccessPoint> accessPoints, String region){
+    public SSID(String ssid, String security, List<AccessPoint> accessPoints, String region){
         this.ssid = ssid;
         this.security = security;
         this.accessPoints = accessPoints;

@@ -1,37 +1,54 @@
 package com.example.android.wifilocator;
 
-        import android.content.Intent;
-        import android.support.v4.app.NavUtils;
-        import android.support.v7.app.ActionBar;
-        import android.support.v7.app.AppCompatActivity;
-        import android.os.Bundle;
-        import android.view.Menu;
-        import android.view.MenuItem;
-        import android.widget.ExpandableListAdapter;
-        import android.widget.ExpandableListView;
+import android.content.Intent;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 
-        import com.example.android.wifilocator.models.Region;
-        import com.example.android.wifilocator.models.SSID;
-        import com.google.firebase.database.ChildEventListener;
-        import com.google.firebase.database.DataSnapshot;
-        import com.google.firebase.database.DatabaseError;
+import com.example.android.wifilocator.models.AccessPoint;
+import com.example.android.wifilocator.models.Cluster;
+import com.example.android.wifilocator.models.Region;
+import com.example.android.wifilocator.models.SSID;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.json.JSONException;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-        import java.util.ArrayList;
-        import java.util.HashMap;
-        import java.util.List;
+import static com.example.android.wifilocator.MainActivity.mFirebaseDatabase;
 
 /**
  * Created by Sherif Meimari on 1/25/2017.
  */
 
 public class PublicWifisActivity extends AppCompatActivity {
-
+    final List<AccessPoint> points = new ArrayList<AccessPoint>();
+    public static DatabaseReference mBSSIDSDatabaseReference;
     //Expandable List
     ExpandableListView mExpandableListView;
     ExpandableListAdapter mExpandableListAdapter;
     List<String> regionNames;
     HashMap<String,List<String>> regionsMap;
-
     //Firebase
     private ChildEventListener mChildEventListener;
 
@@ -48,6 +65,93 @@ public class PublicWifisActivity extends AppCompatActivity {
         regionsMap = new HashMap<>();
         regionNames = new ArrayList<String>(regionsMap.keySet());
         mExpandableListAdapter = new WifiExpandableListAdapter(this, regionNames, regionsMap);
+
+
+        // ******************selected child***************************
+        mExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                final String Region = regionNames.get(groupPosition);
+                final String ssidSlected= regionsMap.get(regionNames.get(groupPosition)).get(childPosition);
+                mFirebaseDatabase = FirebaseDatabase.getInstance();
+                mBSSIDSDatabaseReference = mFirebaseDatabase.getReference();
+                final Region[] region = new Region[1];
+                mBSSIDSDatabaseReference.child(Region).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        region[0] = dataSnapshot.getValue(Region.class);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+                final Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        String regionName = region[0].getRegion();
+                        boolean foundSSID = false;
+                        if (regionName.equals(Region)){
+                            for(SSID ssid : region[0].getListSSID()){
+                                String ssidName = ssid.getSSID();
+                                if(ssidName.equals(ssidSlected)){
+//                                    foundSSID = true;
+                                        for(AccessPoint accessPoint:ssid.getAccessPoints()){
+                                            AccessPoint point = new AccessPoint(accessPoint.getLevel(),accessPoint.getLat(),accessPoint.getLng());
+                                            points.add(point);
+                                        }
+                                }
+                                if(foundSSID){
+                                    break;
+                                }
+                            }
+                            try {
+                                uploadToServer();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+                thread.start();
+
+                return false;
+            }
+        });
+    }
+
+    private void uploadToServer() throws IOException, JSONException {
+        String query = "http://wifilocator-fe294.appspot.com/server";
+        String json = new Gson().toJson(points);
+        URL url = new URL(query);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(5000);
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+        conn.setRequestMethod("POST");
+        OutputStream os = conn.getOutputStream();
+        os.write(json.getBytes("UTF-8"));
+        os.close();
+
+        String response = conn.getResponseMessage();
+        // read the response
+        InputStream in = new BufferedInputStream(conn.getInputStream());
+        String result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
+        List<Cluster> clusters = new Gson().fromJson(result, new TypeToken<List<Cluster>>(){}.getType());
+        Log.d("Test", clusters.toString());
+
+        in.close();
+        conn.disconnect();
 
     }
 
@@ -98,8 +202,6 @@ public class PublicWifisActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-
                     Region region = dataSnapshot.getValue(Region.class);
                     String regionName = region.getRegion();
                     List<String> ssidNames = new ArrayList<String>();

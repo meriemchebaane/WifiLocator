@@ -6,9 +6,9 @@ package com.example.android.wifilocator.models;
 
 public class AccessPoint {
 
-    private long level;
-    private double lat;
-    private double lng;
+    private double  level=0;
+    private double lat=0;
+    private double lng=0;
 
     //Constructors
     //Constructor 1
@@ -17,20 +17,20 @@ public class AccessPoint {
     }
 
     //Constructor 2
-    public AccessPoint(long level){
+    public AccessPoint(double level){
 
         this.level = level;
     }
 
     //Constructor 3
-    public AccessPoint(long level, double lat, double lng){
+    public AccessPoint(double level, double lat, double lng){
         this.level = level;
         this.lat = lat;
         this.lng = lng;
     }
 
     //Getters
-    public long getLevel() {
+    public double getLevel() {
         return level;
     }
 
@@ -52,7 +52,7 @@ public class AccessPoint {
 
 //Setters
 
-    public void setLevel(long level) {
+    public void setLevel(double level) {
         this.level = level;
     }
 
