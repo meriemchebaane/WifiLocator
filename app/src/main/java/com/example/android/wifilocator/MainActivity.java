@@ -8,6 +8,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -43,6 +44,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
+import static com.example.android.wifilocator.R.id.logo;
 import static com.example.android.wifilocator.R.id.map;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
@@ -143,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         region[0] = dataSnapshot.getValue(Region.class);
-  Toast.makeText(MainActivity.this, "New Wifis have been added!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "New Wifis have been added!", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -168,27 +170,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
                             region[0] = new Region(GoogleLocationAsyncTask.region, ssids);
                             mWifisDatabaseReference.child(region[0].getRegion()).setValue(region[0]);
+                            Log.d("TAG", "New Region: " + region[0]);
                         }else{
                             for(Wifi wifi : listwifi){
                                 String ssidName = wifi.getSSID();
                                 boolean foundSSID = false;
-                                   SSID ssid1 = null;
+                                   SSID ssid1=null;
                                 for(SSID ssid : region[0].getListSSID()){
+                                    foundSSID = false;
+                                    ssid1 = null;
                                     if(ssid.getSSID().equals(ssidName)){
                                         foundSSID = true;
-                                      ssid1 = ssid;
+                                        ssid1 = ssid;
                                         break;
-                                }}
+                                    }
+                                }
                                 if(foundSSID){
                                     ArrayList<AccessPoint> accessPoints = new ArrayList<AccessPoint>();
                                     ssid1.getAccessPoints().add(new AccessPoint(wifi.getLevel(), GoogleLocationAsyncTask.latLng.latitude, GoogleLocationAsyncTask.latLng.longitude));
                                     }
                                 else {
-                                    ArrayList<AccessPoint> accessPoints = new ArrayList<AccessPoint>();
-                                    accessPoints.add(new AccessPoint(wifi.getLevel(), GoogleLocationAsyncTask.latLng.latitude, GoogleLocationAsyncTask.latLng.longitude));
-                                    SSID ssid2 = new SSID(wifi.getSSID());
-                                    ssid2.setAccessPoints(accessPoints);
-                                    region[0].getListSSID().add(ssid2);
+//                                    ArrayList<AccessPoint> accessPoints = new ArrayList<AccessPoint>();
+//                                    accessPoints.add(new AccessPoint(wifi.getLevel(), GoogleLocationAsyncTask.latLng.latitude, GoogleLocationAsyncTask.latLng.longitude));
+//                                    SSID ssid2 = new SSID(wifi.getSSID());
+//                                    ssid2.setAccessPoints(accessPoints);
+//                                    region[0].getListSSID().add(ssid2);
                                     region[0].getListSSID().add(createSSID(wifi));
                                 }
                             }
